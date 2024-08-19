@@ -2,7 +2,6 @@ import { useState } from "react";
 
 // import Google and GitHub React
 import GoogleButton from 'react-google-button'
-import GitHubButton from 'react-github-btn'
 
 // import Material Ui
 import AddIcon from '@mui/icons-material/Add';
@@ -12,28 +11,62 @@ import * as React from 'react';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+
+// import firebase
+import { getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import app from "../firebaseConfig";
+import { useAuthState } from 'react-firebase-hooks/auth';
 
 
 
 const Header = () => {
     const [open, setOpen] = React.useState(false);
     const [header, setheader] = useState('')
+    const [FormData, setFormData] = useState({
+        username: '',
+        email: '',
+        password: ''
+    })
 
+    // Firebase Authentication
+    const auth = getAuth(app);
+
+    // Get User 
+    const userAuth = useAuthState(auth);
+    console.log(userAuth[0]);
+    let user =  userAuth[0]?.email
+
+
+    // Handle Change Diyalog
     const handleClickOpen = () => {
         setOpen(true);
     };
 
+    // Handle Change Close Diyalog
     const handleClose = () => {
         setOpen(false);
     };
 
-    // const HandleHeader = () => {
+    // Handle Submit Login 
+    const HandleSubmit = (e) => {
+        e.preventDefault();
 
-    // }
+        signInWithEmailAndPassword(auth, FormData.email, FormData.password)
+            .then((userCredential) => {
+                // Signed in 
+                const user = userCredential.user;
+                console.log(user);
+                setOpen(false);
+            }).catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                console.error(errorCode, errorMessage);
+            })
+    }
 
+
+    // handle Scrolled Header
     window.onscroll = () => {
         if (window.scrollY >= 100) {
             setheader('fixed w-full')
@@ -51,19 +84,6 @@ const Header = () => {
                         href="https://flowbite.com/"
                         className="flex items-center space-x-3 rtl:space-x-reverse"
                     >
-
-                        {/* <svg
-                            aria-label="Instagram"
-                            className="x1lliihq x1n2onr6 x5n08af"
-                            fill="currentColor"
-                            height={24}
-                            role="img"
-                            viewBox="0 0 24 24"
-                            width={24}
-                        >
-                            <title>Instagram</title>
-                            <path d="M12 2.982c2.937 0 3.285.011 4.445.064a6.087 6.087 0 0 1 2.042.379 3.408 3.408 0 0 1 1.265.823 3.408 3.408 0 0 1 .823 1.265 6.087 6.087 0 0 1 .379 2.042c.053 1.16.064 1.508.064 4.445s-.011 3.285-.064 4.445a6.087 6.087 0 0 1-.379 2.042 3.643 3.643 0 0 1-2.088 2.088 6.087 6.087 0 0 1-2.042.379c-1.16.053-1.508.064-4.445.064s-3.285-.011-4.445-.064a6.087 6.087 0 0 1-2.043-.379 3.408 3.408 0 0 1-1.264-.823 3.408 3.408 0 0 1-.823-1.265 6.087 6.087 0 0 1-.379-2.042c-.053-1.16-.064-1.508-.064-4.445s.011-3.285.064-4.445a6.087 6.087 0 0 1 .379-2.042 3.408 3.408 0 0 1 .823-1.265 3.408 3.408 0 0 1 1.265-.823 6.087 6.087 0 0 1 2.042-.379c1.16-.053 1.508-.064 4.445-.064M12 1c-2.987 0-3.362.013-4.535.066a8.074 8.074 0 0 0-2.67.511 5.392 5.392 0 0 0-1.949 1.27 5.392 5.392 0 0 0-1.269 1.948 8.074 8.074 0 0 0-.51 2.67C1.012 8.638 1 9.013 1 12s.013 3.362.066 4.535a8.074 8.074 0 0 0 .511 2.67 5.392 5.392 0 0 0 1.27 1.949 5.392 5.392 0 0 0 1.948 1.269 8.074 8.074 0 0 0 2.67.51C8.638 22.988 9.013 23 12 23s3.362-.013 4.535-.066a8.074 8.074 0 0 0 2.67-.511 5.625 5.625 0 0 0 3.218-3.218 8.074 8.074 0 0 0 .51-2.67C22.988 15.362 23 14.987 23 12s-.013-3.362-.066-4.535a8.074 8.074 0 0 0-.511-2.67 5.392 5.392 0 0 0-1.27-1.949 5.392 5.392 0 0 0-1.948-1.269 8.074 8.074 0 0 0-2.67-.51C15.362 1.012 14.987 1 12 1Zm0 5.351A5.649 5.649 0 1 0 17.649 12 5.649 5.649 0 0 0 12 6.351Zm0 9.316A3.667 3.667 0 1 1 15.667 12 3.667 3.667 0 0 1 12 15.667Zm5.872-10.859a1.32 1.32 0 1 0 1.32 1.32 1.32 1.32 0 0 0-1.32-1.32Z" />
-                        </svg> */}
                         <svg
                             aria-label="Instagram"
                             className="x1lliihq flex items-center justify-center x1n2onr6 x5n08af"
@@ -143,17 +163,25 @@ const Header = () => {
                                 placeholder="Search..."
                             />
                         </div>
-                        {/* <div className="avtar ml-6 flex items-center justify-center">
-                            <button type="button" className="flex text-sm bg-gray-800 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
+                        {user && <div className="avtar ml-6 flex items-center justify-center">
+                            <button onClick={() => {
+                                signOut(auth).then(() => {
+                                    // Sign-out successful.
+                                    console.log(auth);
+                                    
+                                }).catch((error) => {
+                                    // An error happened.
+                                });
+                            }} type="submit" className="flex text-sm bg-gray-800 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
                                 <span className="sr-only">Open user menu</span>
                                 <img className="w-8 h-8 rounded-full" src="https://mui.com/static/images/avatar/1.jpg" alt="user photo" />
                             </button>
-                        </div> */}
+                        </div>}
                         {/* Add Code Material ui  */}
                         <React.Fragment >
-                            <Button sx={{ marginLeft: '20px', color: '#ddd', border: 'yellow' }} variant="outlined" onClick={handleClickOpen}>
+                            {!user && <Button sx={{ marginLeft: '20px', color: '#ddd', border: 'yellow' }} variant="outlined" onClick={handleClickOpen}>
                                 Login
-                            </Button>
+                            </Button>}
                             <Dialog
                                 open={open}
                                 onClose={handleClose}
@@ -222,14 +250,14 @@ const Header = () => {
                                 >
                                     <TextField sx={{ width: '500px', margin: 'auto' }}
                                         onChange={(e) => {
-                                            // handleChange(e.target.value);
-                                            // setUsername(e.target.value);
-                                            console.log(e.target.value);
-
+                                            setFormData({ ...FormData, email: e.target.value });
                                         }}
-                                        UserName label="UserName" id="UserName" />
+                                        Email label="Email" id="Email" />
                                     <TextField sx={{ width: '500px', margin: 'auto' }}
-                                        Password label="Password" id="Password" />
+                                        onChange={(e) => {
+                                            setFormData({ ...FormData, password: e.target.value });
+                                        }}
+                                        Password label="Password" id="password" type="password" />
                                 </Box>
                                 <DialogActions
                                     sx={{
@@ -241,11 +269,9 @@ const Header = () => {
                                     }}
                                 >
                                     <button className='bg-orange-900 text-white w-full h-14' onClick={handleClose}>Cancel</button>
-                                    <button className=' bg-[#0095f6] text-white w-full h-14' onClick={() => {
-                                        // HandleSubmit();
-                                    }} type="submit">Log in</button>
+                                    <button className=' bg-[#0095f6] text-white w-full h-14' onClick={HandleSubmit} type="submit">Log in</button>
                                 </DialogActions>
-                                <Link to={'/regester'} className='bg-orange-900 text-white w-full h-14' onClick={handleClose}>Create New Account</Link>
+                                <Link to={'/regester'} className='bg-orange-900 flex items-center justify-center text-white w-full h-14'>Create New Account</Link>
                             </Dialog>
                         </React.Fragment>
                         <button

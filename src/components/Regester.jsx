@@ -11,31 +11,60 @@ import { Box, Button } from "@mui/material";
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import styled from 'styled-components';
+
 
 // Handle Fire Base
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import app from '../firebaseConfig';
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import app, { storage } from '../firebaseConfig';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 
 
 const Regester = () => {
     // getAuth Firebase
     const auth = getAuth(app);
-    
+
+    const AuthUser = useAuthState(auth);
+    console.log(AuthUser[0]?.providerData.map((it)=>{
+        console.log(it.email);
+        console.log(it.photoURL);
+        console.log(it.providerId);
+        console.log(it.uid);
+        console.log(it.displayName);
+        console.log(it.emailVerified);
+    }));
+
+
     // State Form Data
     const [open, setOpen] = React.useState(true);
     const [FormData, setFormData] = useState({
         email: '',
         password: '',
+        name: '',
+        photoURL: null
     });
 
     // Handle Loading
     const [loading, setLoading] = useState(false);
-    console.log(loading);
+    const [imageURL, setImageURL] = useState(null);
     
+
+    // handle cheang Photo
+    const handlePhotoChange = async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const storageRef = ref(storage, `images/${file.name}`);
+            await uploadBytes(storageRef, file);
+            const url = await getDownloadURL(storageRef);
+            setFormData({ ...FormData, photoURL: url });
+            setImageURL(url);
+        }
+    }
+
 
     // Handle USeNaveget
     const Naveget = useNavigate()
@@ -47,25 +76,48 @@ const Regester = () => {
         createUserWithEmailAndPassword(auth, FormData.email, FormData.password)
             .then((userCredential) => {
                 const user = userCredential.user;
-                setFormData({ email: '', password: ''});
-                Naveget('/')
-                
+
+                updateProfile(auth.currentUser, {
+                    displayName: FormData.name, photoURL: FormData.photoURL
+                }).then(() => {
+                    // Profile updated!
+                    console.log(susses);
+
+                    // ...
+                }).catch((error) => {
+                    // An error occurred
+                    // ...
+                });
+                // Naveget('/')
+                setFormData({ email: '', password: '' });
+
             })
             .catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
-            }).finally(()=>{
+            }).finally(() => {
                 setLoading(true);
             })
     };
 
-    useEffect(()=>{
+    useEffect(() => {
         setLoading(false);
-    },[])
+    }, [])
 
-    const handleClose = () => {
-        setOpen(false);
-    };
+    // Handle Style Material Ui 
+
+    const VisuallyHiddenInput = styled('input')({
+        clip: 'rect(0 0 0 0)',
+        clipPath: 'inset(50%)',
+        height: 1,
+        overflow: 'hidden',
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        whiteSpace: 'nowrap',
+        width: 1,
+    });
+
     return (
         <>
             <Dialog
@@ -136,6 +188,27 @@ const Regester = () => {
                             setFormData({ ...FormData, password: e.target.value });
                         }}
                         Password label="password" id="Password" type='password' />
+                    <TextField sx={{ width: '500px', margin: 'auto' }}
+                        onChange={(e) => {
+                            setFormData({ ...FormData, name: e.target.value });
+                        }}
+                        Name label="Name" id="name" type='text' />
+                    <Button
+                        component="label"
+                        role={undefined}
+                        variant="contained"
+                        tabIndex={-1}
+                        startIcon={<CloudUploadIcon />}
+                    > Upload Photo
+                        <input type="file" hidden onChange={handlePhotoChange} name="" id="" />
+                        <VisuallyHiddenInput type="file" />
+
+                    </Button>
+                    {imageURL && (
+                        <div>
+                            <img src={imageURL} alt="Uploaded Preview" style={{ maxWidth: '100%', marginTop: '10px' }} />
+                        </div>
+                    )}
                 </Box>
                 <DialogActions
                     sx={{
@@ -147,7 +220,9 @@ const Regester = () => {
                     }}
                 >
                     <button className=' bg-[#0095f6] text-white w-full h-14' onClick={
-                        HandleSubmit} type="submit">Register</button>
+                        HandleSubmit} type="submit">
+                            {loading ? 'Registering...' : 'Register'}
+                        </button>
                 </DialogActions>
                 <Link to={'/regester'} className='bg-orange-900 flex items-center justify-center text-white w-full h-14' >Are You Account</Link>
             </Dialog>
