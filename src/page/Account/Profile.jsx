@@ -5,7 +5,6 @@ const Profile = () => {
     return (
         <>
             <Header />
-            {/* User profile */}
         </>
     );
 }

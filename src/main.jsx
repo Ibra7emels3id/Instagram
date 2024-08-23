@@ -7,7 +7,7 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import Regester from './page/Reagister/Regester.jsx';
-import Profile from './page/Account/profile.jsx';
+import Profile from './page/Account/Profile.jsx'
 
 const router = createBrowserRouter([
   {
