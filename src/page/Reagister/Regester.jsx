@@ -18,7 +18,7 @@ import styled from 'styled-components';
 
 // Handle Fire Base
 import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import app, { storage } from '../firebaseConfig';
+import app, { storage } from '../../firebaseConfig';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
@@ -81,14 +81,12 @@ const Regester = () => {
                     displayName: FormData.name, photoURL: FormData.photoURL
                 }).then(() => {
                     // Profile updated!
-                    console.log(susses);
+                    // console.log(susses);
 
-                    // ...
                 }).catch((error) => {
-                    // An error occurred
-                    // ...
+                    
                 });
-                // Naveget('/')
+                Naveget('/')
                 setFormData({ email: '', password: '' });
 
             })
@@ -101,8 +99,12 @@ const Regester = () => {
     };
 
     useEffect(() => {
-        setLoading(false);
+        
     }, [])
+
+    setTimeout(() => {
+        setLoading(false);
+    }, 1000);
 
     // Handle Style Material Ui 
 
@@ -182,16 +184,19 @@ const Regester = () => {
                         onChange={(e) => {
                             setFormData({ ...FormData, email: e.target.value });
                         }}
+                        value={FormData.email}
                         Email label="email" id="email" />
                     <TextField sx={{ width: '500px', margin: 'auto' }}
                         onChange={(e) => {
                             setFormData({ ...FormData, password: e.target.value });
                         }}
+                        value={FormData.password}
                         Password label="password" id="Password" type='password' />
                     <TextField sx={{ width: '500px', margin: 'auto' }}
                         onChange={(e) => {
                             setFormData({ ...FormData, name: e.target.value });
                         }}
+                        value={FormData.name}
                         Name label="Name" id="name" type='text' />
                     <Button
                         component="label"

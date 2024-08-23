@@ -6,7 +6,8 @@ import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
-import Regester from './components/Regester.jsx';
+import Regester from './page/Reagister/Regester.jsx';
+import Profile from './page/Account/profile.jsx';
 
 const router = createBrowserRouter([
   {
@@ -17,6 +18,10 @@ const router = createBrowserRouter([
     path: "/regester",
     element: <Regester/>,
   },
+  {
+    path: "/profile",
+    element: <Profile />,
+  }
 ]);
 
 

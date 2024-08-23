@@ -17,11 +17,13 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import app from "../firebaseConfig";
 import { useAuthState } from 'react-firebase-hooks/auth';
+import FormPost from "./home_components/FormPost";
 
 
 
 const Header = () => {
     const [open, setOpen] = React.useState(false);
+    const [openAlertForm, setopenAlertForm] = useState(null);
     const [header, setheader] = useState('')
     const [FormData, setFormData] = useState({
         username: '',
@@ -32,10 +34,12 @@ const Header = () => {
     // Firebase Authentication
     const auth = getAuth(app);
 
+
     // Get User 
     const userAuth = useAuthState(auth);
-    console.log(userAuth[0]);
-    let user =  userAuth[0]?.email
+    console.log(userAuth[0]?.providerData);
+    let user = userAuth[0]?.providerData
+
 
 
     // Handle Change Diyalog
@@ -56,7 +60,6 @@ const Header = () => {
             .then((userCredential) => {
                 // Signed in 
                 const user = userCredential.user;
-                console.log(user);
                 setOpen(false);
             }).catch((error) => {
                 const errorCode = error.code;
@@ -75,9 +78,18 @@ const Header = () => {
         }
     }
 
+    // Show Diloge Alert Add to Post
+    const showAlerts = () => {
+        setopenAlertForm(!openAlertForm);
+    }
+
+    // console.log(openAlertForm);
+
+
 
     return (
         <>
+            <FormPost Dial={openAlertForm} />
             <nav className={`bg-white ${header} z-[100] border-gray-200 dark:bg-[#000000]`}>
                 <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
                     <a
@@ -129,13 +141,7 @@ const Header = () => {
                             <span className="sr-only">Search</span>
                         </button>
                         <div className="flex items-center justify-center mx-4 w-28">
-                            <Link
-                                to={"/"}
-                                className="flex items-center justify-center h-7 bg-neutral-900 w-full  py-2 px-7  text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
-                            >
-                                <AddIcon />Create
-                            </Link>
-
+                            <Button variant="contained" onClick={showAlerts}><AddIcon />Create</Button>
                         </div>
                         <div className="relative hidden md:block">
                             <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
@@ -163,23 +169,15 @@ const Header = () => {
                                 placeholder="Search..."
                             />
                         </div>
-                        {user && <div className="avtar ml-6 flex items-center justify-center">
-                            <button onClick={() => {
-                                signOut(auth).then(() => {
-                                    // Sign-out successful.
-                                    console.log(auth);
-                                    
-                                }).catch((error) => {
-                                    // An error happened.
-                                });
-                            }} type="submit" className="flex text-sm bg-gray-800 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
+                        {userAuth[0]?.email && <div className="avtar ml-6 flex items-center justify-center">
+                            <Link to={'/profile'} type="submit" className="flex text-sm bg-gray-800 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
                                 <span className="sr-only">Open user menu</span>
-                                <img className="w-8 h-8 rounded-full" src="https://mui.com/static/images/avatar/1.jpg" alt="user photo" />
-                            </button>
+                                <img className="w-8 h-8 rounded-full" src={user[0]?.photoURL} alt="user photo" />
+                            </Link>
                         </div>}
                         {/* Add Code Material ui  */}
                         <React.Fragment >
-                            {!user && <Button sx={{ marginLeft: '20px', color: '#ddd', border: 'yellow' }} variant="outlined" onClick={handleClickOpen}>
+                            {!userAuth[0]?.email && <Button sx={{ marginLeft: '20px', color: '#ddd', border: 'yellow' }} variant="outlined" onClick={handleClickOpen}>
                                 Login
                             </Button>}
                             <Dialog
